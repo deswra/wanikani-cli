@@ -88,7 +88,7 @@ class ReviewList {
       else assignment.incorrectMeaningAnswers++;
     }
     if (
-      (assignment.data.subject_type === 'radical' && assignment.readingPassed) ||
+      (assignment.data.subject_type === 'radical' && assignment.meaningPassed) ||
       (assignment.readingPassed && assignment.meaningPassed)
     ) {
       assignment.passed = true;
