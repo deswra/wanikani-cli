@@ -1,0 +1,21 @@
+{
+  "name": "wanikani-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "clear": "^0.1.0",
+    "dotenv": "^8.2.0",
+    "inquirer": "^7.3.2",
+    "node-fetch": "^2.6.0",
+    "query-string": "^6.13.1",
+    "wanakana": "^4.0.2"
+  }
+}
