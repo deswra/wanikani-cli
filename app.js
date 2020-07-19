@@ -1,7 +1,9 @@
 require('dotenv').config();
 const inquirer = require('inquirer');
 const { isKana, toKana } = require('wanakana');
+
 const wanikani = require('./wanikani');
+const { getSrsStageName } = require('./helpers');
 
 wanikani.getAllAssignments({ immediately_available_for_review: true }).then(async (res) => {
   const reviews = new wanikani.ReviewList(res.data);
@@ -50,8 +52,19 @@ wanikani.getAllAssignments({ immediately_available_for_review: true }).then(asyn
       console.log('Incorrect!');
       reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, false);
     } else {
-      console.log('Correct!');
-      reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, true);
+      console.log('Correct');
+      const assignment = reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, true);
+      if (assignment.passed) {
+        let srsStage = assignment.data.srs_stage;
+        if (!assignment.incorrectMeaningAnswers && !assignment.incorrectReadingAnswers) {
+          srsStage++;
+          if (srsStage > 9) srsStage = 9;
+        } else {
+          srsStage -= 2;
+          if (srsStage < 1) srsStage = 1;
+        }
+        console.log(`${getSrsStageName(srsStage)} ${srsStage > assignment.data.srs_stage ? '▲' : '▼'}`);
+      }
     }
   }
 });
