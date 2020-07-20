@@ -3,10 +3,13 @@ const inquirer = require('inquirer');
 const { isKana, toKana } = require('wanakana');
 
 const wanikani = require('./wanikani');
-const { getSrsStageName } = require('./helpers');
+const { getSrsStageName, matchAnswer } = require('./helpers');
 
-wanikani.getAllAssignments({ immediately_available_for_review: true }).then(async (res) => {
-  const reviews = new wanikani.ReviewList(res.data);
+const doReview = async () => {
+  const allAssignments = await wanikani.getAllAssignments({ immediately_available_for_review: true });
+  if (allAssignments.total_counts === 0) return;
+  console.log(`You have ${allAssignments.total_count} reviews.`);
+  const reviews = new wanikani.ReviewList(allAssignments.data);
   await reviews.fetchSubjects();
   while (reviews.assignments.length > 0) {
     const randomQuiz = reviews.getRandomQuiz();
@@ -29,26 +32,17 @@ wanikani.getAllAssignments({ immediately_available_for_review: true }).then(asyn
         },
       },
     ]);
-    let answer = response.answer.trim().toLowerCase();
-    if (randomQuiz.quizType === 'reading') answer = toKana(answer);
-    let result = -1;
-    if (randomQuiz.quizType === 'meaning') {
-      result = randomQuiz.correctAnswers.findIndex(
-        (meaning) => meaning.meaning.toLowerCase() === answer && meaning.accepted_answer
-      );
-    } else {
-      if (randomQuiz.subjectType === 'kanji') {
-        result = randomQuiz.correctAnswers.findIndex(
-          (reading) => reading.reading === answer && !reading.accepted_answer
-        );
-        if (result !== -1) {
-          console.log('Wrong reading.');
-          continue;
-        }
-      }
-      result = randomQuiz.correctAnswers.findIndex((reading) => reading.reading === answer && reading.accepted_answer);
+    let { result, wrongReading } = matchAnswer(
+      randomQuiz.subjectType,
+      randomQuiz.quizType,
+      randomQuiz.correctAnswers,
+      response.answer
+    );
+    if (wrongReading) {
+      console.log('Wrong reading.');
+      continue;
     }
-    if (result === -1) {
+    if (!result) {
       console.log('Incorrect!');
       reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, false);
     } else {
@@ -67,4 +61,6 @@ wanikani.getAllAssignments({ immediately_available_for_review: true }).then(asyn
       }
     }
   }
-});
+};
+
+doReview();

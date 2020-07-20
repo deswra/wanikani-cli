@@ -13,6 +13,7 @@
   "dependencies": {
     "clear": "^0.1.0",
     "dotenv": "^8.2.0",
+    "fast-levenshtein": "^2.0.6",
     "inquirer": "^7.3.2",
     "node-fetch": "^2.6.0",
     "query-string": "^6.13.1",

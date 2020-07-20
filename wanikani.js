@@ -28,6 +28,92 @@ const createReview = (body) => {
   }).then((res) => res.json());
 };
 
+// credit: github.com/babystand
+const parseMissingRadical = (name) => {
+  switch (name) {
+    case 'gun':
+      return '𠂉';
+    case 'beggar':
+      return '与 (without bottom line)';
+    case 'leaf':
+      return '丆';
+    case 'triceratops':
+      return '⺌';
+    case 'stick':
+      return '⼁';
+    case 'hat':
+      return '𠆢 (个 without the vertical line)';
+    case 'horns':
+      return '丷';
+    case 'spikes':
+      return '业';
+    case 'cactus':
+      return '墟 (bottom right radical)';
+    case 'trident':
+      return '棄 (center radical)';
+    case 'shark':
+      return '烝';
+    case 'comb':
+      return '段 (left half)';
+    case 'egg':
+      return '乍 (without the top-left tick)';
+    case 'death-star':
+      return '俞';
+    case 'corn':
+      return '演 (middle radical)';
+    case 'explosion':
+      return '渋 (bottom-right radical)';
+    case 'hick':
+      return '度 (without the 又)';
+    case 'worm':
+      return '堂 (without the top radicals)';
+    case 'squid':
+      return '剣 (without the 刂)';
+    case 'zombie':
+      return '遠 (without the ⻌ )';
+    case 'grass':
+      return '⺍';
+    case 'bar':
+      return '残 (right half)';
+    case 'creeper':
+      return '司 (inside radical)';
+    case 'cloak':
+      return '司 (outside radical)';
+    case 'train':
+      return '夫';
+    case 'tofu':
+      return '旅 (bottom-right radical)';
+    case 'bear':
+      return '官 (without the 宀)';
+    case 'trash':
+      return '育 (top half)';
+    case 'blackjack':
+      return '昔 (top half)';
+    case 'chinese':
+      return '漢 (right half)';
+    case 'pope':
+      return '盾 (inside radical)';
+    case 'cleat':
+      return '⺤';
+    case 'hills':
+      return '之 (without the top tick)';
+    case 'kick':
+      return '表 (bottom half)';
+    case 'viking':
+      return '学 (without the 子)';
+    case 'potato':
+      return '華 (without the ⺾)';
+    case 'water-slide':
+      return '⻌';
+    case 'psychopath':
+      return '鬱 (bottom half)';
+    case 'morning':
+      return '乾 (left radical)';
+    case 'saw':
+      return '恐 (without the ⼼)';
+  }
+};
+
 class ReviewList {
   constructor(assignments) {
     this.assignments = assignments.map((assignment) => {
@@ -58,7 +144,7 @@ class ReviewList {
       subjectId: randomAssignment.data.subject_id,
       subjectType: randomAssignment.data.subject_type,
       srsStage: randomAssignment.data.srs_stage,
-      hint: subject.characters,
+      hint: subject.characters ? subject.characters : parseMissingRadical(subject.slug),
     };
     if (randomAssignment.data.subject_type === 'radical') {
       response.quizType = 'meaning';
