@@ -20,7 +20,8 @@ const doReview = async () => {
         name: 'answer',
         message: `${randomQuiz.hint} (${randomQuiz.subjectType} - ${randomQuiz.quizType})`,
         transformer: (a, b) => {
-          if (randomQuiz.quizType === 'reading') return toKana(a);
+          if (randomQuiz.quizType === 'reading')
+            return toKana(a.replace(/nn/g, 'n'));
           else return a;
         },
         validate: (input) => {

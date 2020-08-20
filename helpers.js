@@ -31,7 +31,8 @@ const stringFormat = (str) => {
     .trim()
     .toLowerCase()
     .replace(/-/g, ' ')
-    .replace(/\.|,|'|\u2019|\/|:/g, '');
+    .replace(/\.|,|'|\u2019|\/|:/g, '')
+    .replace(/nn/g, 'n');
 };
 
 const distanceTolerance = (str) => {
@@ -51,20 +52,35 @@ const distanceTolerance = (str) => {
   }
 };
 
-const matchAnswer = (subjectType, quizType, correctAnswers, submittedAnswer) => {
+const matchAnswer = (
+  subjectType,
+  quizType,
+  correctAnswers,
+  submittedAnswer
+) => {
   let answer = stringFormat(submittedAnswer);
   let wrongReading = false;
   let compareResult = -1;
   let result = false;
   if (quizType === 'meaning')
     compareResult = correctAnswers.findIndex((m) => {
-      return levenshtein.get(answer, m.meaning.toLowerCase()) <= distanceTolerance(answer) && m.accepted_answer;
+      return (
+        levenshtein.get(answer, m.meaning.toLowerCase()) <=
+          distanceTolerance(answer) && m.accepted_answer
+      );
     });
   else {
     answer = toKana(answer);
     if (subjectType === 'kanji') {
-      compareResult = correctAnswers.findIndex((r) => r.reading === answer && !r.accepted_answer);
-      if (compareResult !== -1 && correctAnswers.findIndex((r) => r.reading === answer && r.accepted_answer) === -1) {
+      compareResult = correctAnswers.findIndex(
+        (r) => r.reading === answer && !r.accepted_answer
+      );
+      if (
+        compareResult !== -1 &&
+        correctAnswers.findIndex(
+          (r) => r.reading === answer && r.accepted_answer
+        ) === -1
+      ) {
         wrongReading = true;
         return {
           result,
@@ -72,7 +88,9 @@ const matchAnswer = (subjectType, quizType, correctAnswers, submittedAnswer) => 
         };
       }
     }
-    compareResult = correctAnswers.findIndex((r) => r.reading === answer && r.accepted_answer);
+    compareResult = correctAnswers.findIndex(
+      (r) => r.reading === answer && r.accepted_answer
+    );
   }
   if (compareResult !== -1) {
     result = true;
