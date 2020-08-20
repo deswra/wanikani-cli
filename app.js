@@ -6,7 +6,9 @@ const wanikani = require('./wanikani');
 const { getSrsStageName, matchAnswer } = require('./helpers');
 
 const doReview = async () => {
-  const allAssignments = await wanikani.getAllAssignments({ immediately_available_for_review: true });
+  const allAssignments = await wanikani.getAllAssignments({
+    immediately_available_for_review: true,
+  });
   if (allAssignments.total_counts === 0) return;
   console.log(`You have ${allAssignments.total_count} reviews.`);
   const reviews = new wanikani.ReviewList(allAssignments.data);
@@ -25,7 +27,10 @@ const doReview = async () => {
           if (randomQuiz.quizType === 'reading' && !isKana(toKana(input))) {
             return 'Invalid reading.';
           }
-          if (randomQuiz.quizType === 'meaning' && !/^[a-z0-9 ]+$/i.test(input)) {
+          if (
+            randomQuiz.quizType === 'meaning' &&
+            !/^[a-z0-9 ]+$/i.test(input)
+          ) {
             return 'Invalid answer.';
           }
           return true;
@@ -47,17 +52,31 @@ const doReview = async () => {
       reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, false);
     } else {
       console.log('Correct');
-      const assignment = reviews.submitAnswer(randomQuiz.assignmentId, randomQuiz.quizType, true);
+      const assignment = reviews.submitAnswer(
+        randomQuiz.assignmentId,
+        randomQuiz.quizType,
+        true
+      );
       if (assignment.passed) {
         let srsStage = assignment.data.srs_stage;
-        if (!assignment.incorrectMeaningAnswers && !assignment.incorrectReadingAnswers) {
+        if (
+          !assignment.incorrectMeaningAnswers &&
+          !assignment.incorrectReadingAnswers
+        ) {
           srsStage++;
           if (srsStage > 9) srsStage = 9;
         } else {
           srsStage -= 2;
           if (srsStage < 1) srsStage = 1;
         }
-        console.log(`${getSrsStageName(srsStage)} ${srsStage > assignment.data.srs_stage ? '▲' : '▼'}`);
+        console.log(
+          `${getSrsStageName(srsStage)} ${
+            srsStage > assignment.data.srs_stage ? '▲' : '▼'
+          }`
+        );
+        const remainingReviews = reviews.remainingReviews;
+        if (remainingReviews && remainingReviews % 10 === 0)
+          console.log(`You have ${remainingReviews} reviews left.`);
       }
     }
   }

@@ -9,15 +9,27 @@ const headers = {
 };
 
 const getAllAssignments = (options) => {
-  return fetch(queryString.stringifyUrl({ url: `${APIUrl}assignments`, query: options }, { arrayFormat: 'comma' }), {
-    headers,
-  }).then((res) => res.json());
+  return fetch(
+    queryString.stringifyUrl(
+      { url: `${APIUrl}assignments`, query: options },
+      { arrayFormat: 'comma' }
+    ),
+    {
+      headers,
+    }
+  ).then((res) => res.json());
 };
 
 const getSubjects = (options) => {
-  return fetch(queryString.stringifyUrl({ url: `${APIUrl}subjects`, query: options }, { arrayFormat: 'comma' }), {
-    headers,
-  }).then((res) => res.json());
+  return fetch(
+    queryString.stringifyUrl(
+      { url: `${APIUrl}subjects`, query: options },
+      { arrayFormat: 'comma' }
+    ),
+    {
+      headers,
+    }
+  ).then((res) => res.json());
 };
 
 const createReview = (body) => {
@@ -136,22 +148,34 @@ class ReviewList {
     this.subjects = [];
     subjects.data.forEach((subject) => this.subjects.push(subject));
   }
+  get remainingReviews() {
+    return this.assignments.length;
+  }
   getRandomQuiz() {
-    const randomAssignment = this.assignments[Math.floor(Math.random() * this.assignments.length)];
-    const subject = this.subjects.find((sub) => randomAssignment.data.subject_id === sub.id).data;
+    const randomAssignment = this.assignments[
+      Math.floor(Math.random() * this.assignments.length)
+    ];
+    const subject = this.subjects.find(
+      (sub) => randomAssignment.data.subject_id === sub.id
+    ).data;
     const response = {
       assignmentId: randomAssignment.id,
       subjectId: randomAssignment.data.subject_id,
       subjectType: randomAssignment.data.subject_type,
       srsStage: randomAssignment.data.srs_stage,
-      hint: subject.characters ? subject.characters : parseMissingRadical(subject.slug),
+      hint: subject.characters
+        ? subject.characters
+        : parseMissingRadical(subject.slug),
     };
     if (randomAssignment.data.subject_type === 'radical') {
       response.quizType = 'meaning';
       response.correctAnswers = subject.meanings;
     } else {
       let random = Math.random();
-      if ((random >= 0.5 && randomAssignment.readingPassed) || (random < 0.5 && randomAssignment.meaningPassed)) {
+      if (
+        (random >= 0.5 && randomAssignment.readingPassed) ||
+        (random < 0.5 && randomAssignment.meaningPassed)
+      ) {
         random = 1 - random;
       }
       if (random >= 0.5) {
@@ -165,7 +189,9 @@ class ReviewList {
     return response;
   }
   submitAnswer(assignmentId, quizType, result) {
-    const assignment = this.assignments.find((item) => item.id === assignmentId);
+    const assignment = this.assignments.find(
+      (item) => item.id === assignmentId
+    );
     if (quizType === 'reading') {
       if (result) assignment.readingPassed = true;
       else assignment.incorrectReadingAnswers++;
@@ -174,18 +200,22 @@ class ReviewList {
       else assignment.incorrectMeaningAnswers++;
     }
     if (
-      (assignment.data.subject_type === 'radical' && assignment.meaningPassed) ||
+      (assignment.data.subject_type === 'radical' &&
+        assignment.meaningPassed) ||
       (assignment.readingPassed && assignment.meaningPassed)
     ) {
       assignment.passed = true;
-      const index = this.assignments.findIndex((item) => item.id === assignment.id);
+      const index = this.assignments.findIndex(
+        (item) => item.id === assignment.id
+      );
       if (index !== -1) this.assignments.splice(index, 1);
       const reviewBody = {
         assignment_id: assignment.id,
         incorrect_meaning_answers: assignment.incorrectMeaningAnswers,
       };
       if (Number.isInteger(assignment.incorrectReadingAnswers))
-        reviewBody.incorrect_reading_answers = assignment.incorrectReadingAnswers;
+        reviewBody.incorrect_reading_answers =
+          assignment.incorrectReadingAnswers;
       else reviewBody.incorrect_reading_answers = 0;
       createReview(reviewBody);
     }
